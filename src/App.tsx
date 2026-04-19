@@ -1,0 +1,58 @@
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Layout from './components/Layout';
+import Login from './pages/Login';
+import DoctorDashboard from './pages/doctor/DoctorDashboard';
+import PatientDashboard from './pages/patient/PatientDashboard';
+import DoctorOnboardingForm from './pages/admin/DoctorOnboardingForm';
+import ConsultationChat from './components/ConsultationChat';
+import ScanningPage from './pages/patient/ScanningPage';
+import DoctorMarketplace from './pages/patient/DoctorMarketplace';
+import ProfilePage from './pages/ProfilePage';
+
+// Placeholder components for remaining screens
+const Placeholder = ({ title }: { title: string }) => (
+  <div className="flex flex-col items-center justify-center p-12 glass-card h-64 border-dashed border-gray-200">
+    <h2 className="text-2xl font-bold mb-4 tracking-tight">{title} Screen</h2>
+    <p className="text-text-secondary text-sm">Feature integration pending in current R&D cycle.</p>
+  </div>
+);
+
+const App: React.FC = () => {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        
+        {/* Doctor Routes */}
+        <Route path="/doctor" element={<Layout role="DOCTOR" />}>
+          <Route path="dashboard" element={<DoctorDashboard />} />
+          <Route path="reports" element={<Placeholder title="Diagnostic Reports" />} />
+          <Route path="requests" element={<Placeholder title="Access Requests" />} />
+          <Route path="chatbot" element={<ConsultationChat />} />
+          <Route path="profile" element={<ProfilePage />} />
+        </Route>
+
+        {/* Patient Routes */}
+        <Route path="/patient" element={<Layout role="PATIENT" />}>
+          <Route path="dashboard" element={<PatientDashboard />} />
+          <Route path="chatbot" element={<ConsultationChat />} />
+          <Route path="scanning" element={<ScanningPage />} />
+          <Route path="doctors" element={<DoctorMarketplace />} />
+          <Route path="profile" element={<ProfilePage />} />
+        </Route>
+
+        {/* Admin Routes */}
+        <Route path="/admin" element={<Layout role="ADMIN" />}>
+          <Route path="dashboard" element={<Placeholder title="System Analytics" />} />
+          <Route path="users" element={<DoctorOnboardingForm />} />
+          <Route path="settings" element={<Placeholder title="Protocol Settings" />} />
+        </Route>
+
+        <Route path="/" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
+};
+
+export default App;
