@@ -2,16 +2,16 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { QRCodeSVG } from 'qrcode.react';
 import { toPng } from 'html-to-image';
-import { Download, Share2, ShieldCheck, User, MapPin, Mail, Phone, ExternalLink } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Download, Share2, ShieldCheck, User, MapPin, Mail, Phone, ExternalLink, Users } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Doctor {
   id: number;
   specialization: string;
-  experience: number;
+  experience_years: number;
   clinic_name: string;
   address: string;
-  status: string;
+  is_verified: boolean;
   user: {
     name: string;
     email: string;
@@ -249,11 +249,11 @@ export default function DoctorManagement() {
                       </div>
                       <div className="flex-1">
                         <h3 className="text-2xl font-black text-brand-black tracking-tight">{doc.user.name}</h3>
-                        <p className="text-xs font-bold text-brand-lime uppercase tracking-widest mt-1">{doc.specialization} • {doc.experience}y Exp.</p>
+                        <p className="text-xs font-bold text-brand-lime uppercase tracking-widest mt-1">{doc.specialization} • {doc.experience_years}y Exp.</p>
                       </div>
                       <div className="text-right">
-                        <span className="inline-flex items-center gap-2 bg-brand-lime/10 text-brand-lime text-[10px] font-black uppercase px-4 py-1.5 rounded-xl border border-brand-lime/20 mb-3">
-                          <ShieldCheck size={12} /> {doc.status}
+                        <span className={`inline-flex items-center gap-2 text-[10px] font-black uppercase px-4 py-1.5 rounded-xl border mb-3 ${doc.is_verified ? 'bg-brand-lime/10 text-brand-lime border-brand-lime/20' : 'bg-orange-50 text-orange-600 border-orange-100'}`}>
+                          {doc.is_verified ? <ShieldCheck size={12} /> : <Activity size={12} />} {doc.is_verified ? 'Verified' : 'Pending'}
                         </span>
                         <p className="text-[10px] text-gray-400 flex items-center gap-2 justify-end font-bold uppercase tracking-widest">
                           <ExternalLink size={12} /> Provider Node

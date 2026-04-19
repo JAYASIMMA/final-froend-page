@@ -20,9 +20,11 @@ export default function DoctorOnboardingForm() {
   const [files, setFiles] = useState<{
     licenseDoc: File | null;
     degreeCert: File | null;
+    profileImage: File | null;
   }>({
     licenseDoc: null,
-    degreeCert: null
+    degreeCert: null,
+    profileImage: null
   });
 
   const [location, setLocation] = useState<{ lat: number, lng: number } | null>(null);
@@ -53,6 +55,7 @@ export default function DoctorOnboardingForm() {
     submitData.append('longitude', location.lng.toString());
     submitData.append('license_doc', files.licenseDoc);
     submitData.append('degree_cert', files.degreeCert);
+    if (files.profileImage) submitData.append('profile_image', files.profileImage);
 
     try {
       const token = localStorage.getItem('token');
@@ -91,27 +94,44 @@ export default function DoctorOnboardingForm() {
               <ShieldCheck size={20} className="text-brand-lime" />
               Professional Identity
             </h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-400 uppercase">Full Name</label>
-                <input type="text" className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 w-full outline-none focus:border-brand-black" onChange={e => setFormData({...formData, fullName: e.target.value})} required />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-400 uppercase">Email</label>
-                <input type="email" className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 w-full outline-none focus:border-brand-black" onChange={e => setFormData({...formData, email: e.target.value})} required />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-400 uppercase">Phone Number</label>
-                <div className="relative">
-                  <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input type="text" className="bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-4 py-3 w-full outline-none focus:border-brand-black" onChange={e => setFormData({...formData, phone: e.target.value})} required />
+            <div className="flex flex-col md:flex-row gap-8 mb-6">
+              <div className="flex-shrink-0">
+                <div className="relative group">
+                  <div className="w-32 h-32 rounded-3xl bg-gray-50 border-2 border-dashed border-gray-200 flex flex-col items-center justify-center overflow-hidden transition-all group-hover:border-brand-lime">
+                    {files.profileImage ? (
+                      <img src={URL.createObjectURL(files.profileImage)} className="w-full h-full object-cover" />
+                    ) : (
+                      <>
+                        <Upload size={24} className="text-gray-300 mb-1" />
+                        <span className="text-[10px] font-black text-gray-400 uppercase">Profile Pic</span>
+                      </>
+                    )}
+                    <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={e => setFiles({...files, profileImage: e.target.files?.[0] || null})} accept="image/*" />
+                  </div>
                 </div>
               </div>
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-400 uppercase">Specialization</label>
-                <div className="relative">
-                  <Briefcase size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input type="text" placeholder="e.g. Dermatologist" className="bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-4 py-3 w-full outline-none focus:border-brand-black" onChange={e => setFormData({...formData, specialization: e.target.value})} required />
+              <div className="grid grid-cols-2 gap-4 flex-1">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-gray-400 uppercase">Full Name</label>
+                  <input type="text" value={formData.fullName} className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 w-full outline-none focus:border-brand-black" onChange={e => setFormData({...formData, fullName: e.target.value})} required />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-gray-400 uppercase">Email</label>
+                  <input type="email" value={formData.email} className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 w-full outline-none focus:border-brand-black" onChange={e => setFormData({...formData, email: e.target.value})} required />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-gray-400 uppercase">Phone Number</label>
+                  <div className="relative">
+                    <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input type="text" value={formData.phone} className="bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-4 py-3 w-full outline-none focus:border-brand-black" onChange={e => setFormData({...formData, phone: e.target.value})} required />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-gray-400 uppercase">Specialization</label>
+                  <div className="relative">
+                    <Briefcase size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input type="text" placeholder="e.g. Dermatologist" value={formData.specialization} className="bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-4 py-3 w-full outline-none focus:border-brand-black" onChange={e => setFormData({...formData, specialization: e.target.value})} required />
+                  </div>
                 </div>
               </div>
             </div>
@@ -123,13 +143,13 @@ export default function DoctorOnboardingForm() {
               Credentials & Affiliation
             </h3>
             <div className="grid grid-cols-2 gap-4">
-              <input type="text" placeholder="Degree (e.g. MBBS, MD)" className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 w-full outline-none focus:border-brand-black" onChange={e => setFormData({...formData, degree: e.target.value})} required />
-              <input type="number" placeholder="Years of Experience" className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 w-full outline-none focus:border-brand-black" onChange={e => setFormData({...formData, experience: e.target.value})} required />
+              <input type="text" placeholder="Degree (e.g. MBBS, MD)" value={formData.degree} className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 w-full outline-none focus:border-brand-black" onChange={e => setFormData({...formData, degree: e.target.value})} required />
+              <input type="number" placeholder="Years of Experience" value={formData.experience} className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 w-full outline-none focus:border-brand-black" onChange={e => setFormData({...formData, experience: e.target.value})} required />
               <div className="col-span-2 relative">
                 <Hospital size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input type="text" placeholder="Hospital Affiliation" className="bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-4 py-3 w-full outline-none focus:border-brand-black" onChange={e => setFormData({...formData, hospitalAffiliation: e.target.value})} required />
+                <input type="text" placeholder="Hospital Affiliation" value={formData.hospitalAffiliation} className="bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-4 py-3 w-full outline-none focus:border-brand-black" onChange={e => setFormData({...formData, hospitalAffiliation: e.target.value})} required />
               </div>
-              <input type="text" placeholder="License Number" className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 w-full outline-none focus:border-brand-black" onChange={e => setFormData({...formData, licenseNumber: e.target.value})} required />
+              <input type="text" placeholder="License Number" value={formData.licenseNumber} className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 w-full outline-none focus:border-brand-black" onChange={e => setFormData({...formData, licenseNumber: e.target.value})} required />
             </div>
           </div>
 
@@ -165,12 +185,23 @@ export default function DoctorOnboardingForm() {
               <MapPin size={20} className="text-brand-lime" />
               Clinic Information
             </h3>
-            <input type="text" placeholder="Clinic Name" className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 w-full outline-none focus:border-brand-black mb-4" onChange={e => setFormData({...formData, clinicName: e.target.value})} required />
-            <textarea placeholder="Physical Address" rows={3} className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 w-full outline-none focus:border-brand-black mb-6" onChange={e => setFormData({...formData, address: e.target.value})} required />
+            <input type="text" placeholder="Clinic Name" value={formData.clinicName} className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 w-full outline-none focus:border-brand-black mb-4" onChange={e => setFormData({...formData, clinicName: e.target.value})} required />
+            <textarea placeholder="Physical Address" value={formData.address} rows={3} className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 w-full outline-none focus:border-brand-black mb-6" onChange={e => setFormData({...formData, address: e.target.value})} required />
             
             <div className="flex-1 min-h-[300px] rounded-2xl overflow-hidden border border-gray-100">
                <LocationPicker onLocationSelect={(pos) => setLocation({ lat: pos.lat, lng: pos.lng })} />
             </div>
+
+            {location && (
+              <div className="flex gap-4 mt-4">
+                <div className="flex-1 px-4 py-2 bg-gray-50 rounded-xl border border-gray-100 text-[10px] font-mono text-gray-400">
+                  LAT: {location.lat.toFixed(6)}
+                </div>
+                <div className="flex-1 px-4 py-2 bg-gray-50 rounded-xl border border-gray-100 text-[10px] font-mono text-gray-400">
+                  LNG: {location.lng.toFixed(6)}
+                </div>
+              </div>
+            )}
             
             <button 
               type="submit" 

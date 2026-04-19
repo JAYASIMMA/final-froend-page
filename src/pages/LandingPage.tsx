@@ -22,9 +22,27 @@ const LandingPage: React.FC = () => {
   const navLinks = [
     { name: 'Home', href: '#home', type: 'hash' },
     { name: 'About', href: '#about', type: 'hash' },
-    { name: 'Doctors', href: '/doctor/verify', type: 'link' },
+    { name: 'Experts', href: '#doctors', type: 'hash' },
     { name: 'Comparison', href: '#comparison', type: 'hash' },
     { name: 'Contact', href: '#contact', type: 'hash' },
+  ];
+
+  const doctorSteps = [
+    {
+      title: 'Credential Verification',
+      desc: 'Submit your medical license and certifications for administrative review.',
+      icon: <ShieldCheck className="w-6 h-6 text-brand-lime" />
+    },
+    {
+      title: 'AI Report Analysis',
+      desc: 'Review high-resolution scans and AI-generated diagnostic probability reports.',
+      icon: <Activity className="w-6 h-6 text-brand-lime" />
+    },
+    {
+      title: 'Clinical Consultation',
+      desc: 'Connect with patients, validate findings, and issue secure digital prescriptions.',
+      icon: <MessageSquare className="w-6 h-6 text-brand-lime" />
+    }
   ];
 
   const features = [
@@ -251,6 +269,82 @@ const LandingPage: React.FC = () => {
                 </button>
               </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Doctor Onboarding Section */}
+      <section id="doctors" className="py-24 bg-gray-50 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="space-y-8"
+            >
+              <div className="inline-flex items-center gap-2 bg-brand-black text-white px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">
+                <ShieldCheck className="w-4 h-4 text-brand-lime" />
+                Medical Expert Network
+              </div>
+              <h2 className="text-5xl font-black tracking-tighter leading-none">
+                Empowering <span className="text-brand-lime">Dermatologists</span> with AI
+              </h2>
+              <p className="text-gray-500 text-lg font-medium leading-relaxed">
+                Join our global network of clinical experts. Use our advanced computer vision tools to augment your diagnostic precision and reach patients worldwide.
+              </p>
+              
+              <div className="space-y-6">
+                {doctorSteps.map((step, idx) => (
+                  <div key={idx} className="flex gap-6 group">
+                    <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm border border-gray-100 group-hover:border-brand-lime transition-colors">
+                      {step.icon}
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-bold mb-1">{step.title}</h4>
+                      <p className="text-sm text-gray-500 font-medium">{step.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-6">
+                <Link to="/doctor/verify" className="btn btn-primary px-10 py-5 text-base flex items-center gap-3 w-fit">
+                  Join Expert Network <ArrowRight className="w-5 h-5" />
+                </Link>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="relative"
+            >
+              <div className="absolute -inset-10 bg-brand-lime/10 rounded-full blur-[100px] animate-pulse"></div>
+              <div className="glass-card bg-brand-black p-12 relative z-10 space-y-10 border-brand-lime/20">
+                <div className="flex justify-between items-start">
+                  <div className="w-20 h-2 bg-brand-lime rounded-full"></div>
+                  <div className="text-white/20 text-4xl font-black">01</div>
+                </div>
+                <div className="space-y-4">
+                  <h3 className="text-3xl font-black text-white tracking-tighter">Clinical Workflow</h3>
+                  <p className="text-gray-400 font-medium leading-relaxed">
+                    Our platform streamlines the path from initial AI screening to professional clinical confirmation. Doctors act as the final validation node in our diagnostic neural network.
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-6 bg-white/5 rounded-3xl border border-white/10">
+                    <p className="text-brand-lime text-2xl font-black">98.5%</p>
+                    <p className="text-[10px] text-white/40 uppercase font-black tracking-widest mt-1">AI Precision</p>
+                  </div>
+                  <div className="p-6 bg-white/5 rounded-3xl border border-white/10">
+                    <p className="text-white text-2xl font-black">Real-time</p>
+                    <p className="text-[10px] text-white/40 uppercase font-black tracking-widest mt-1">Patient Sync</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>

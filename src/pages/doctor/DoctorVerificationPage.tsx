@@ -16,6 +16,7 @@ import {
   ChevronLeft
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import LocationPicker from '../../components/LocationPicker';
 
 const DoctorVerificationPage: React.FC = () => {
   const [step, setStep] = useState(1);
@@ -279,6 +280,22 @@ const DoctorVerificationPage: React.FC = () => {
                 <div className="space-y-2 md:col-span-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Clinical Address</label>
                   <textarea name="address" value={formData.address} onChange={handleInputChange} required rows={3} className="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:outline-none focus:border-brand-black transition-all font-bold text-sm resize-none" placeholder="123 Medical Plaza, Health Square, CA 90210"></textarea>
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Physical Clinic Location</label>
+                  <div className="rounded-3xl overflow-hidden border border-gray-100 shadow-inner bg-gray-50">
+                    <LocationPicker 
+                      onLocationSelect={(pos) => setFormData({ ...formData, latitude: pos.lat.toString(), longitude: pos.lng.toString() })} 
+                    />
+                  </div>
+                  <div className="flex gap-4 mt-2">
+                    <div className="flex-1 px-4 py-2 bg-gray-50 rounded-xl border border-gray-100 text-[10px] font-mono text-gray-400">
+                      LAT: {formData.latitude}
+                    </div>
+                    <div className="flex-1 px-4 py-2 bg-gray-50 rounded-xl border border-gray-100 text-[10px] font-mono text-gray-400">
+                      LNG: {formData.longitude}
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             )}
