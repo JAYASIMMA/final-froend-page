@@ -3,24 +3,20 @@ import { Users, FileText, Clock, AlertCircle, TrendingUp, Calendar, ChevronRight
 
 const DoctorDashboard: React.FC = () => {
   const stats = [
-    { label: 'Total Patients', value: '1,284', icon: Users, color: 'text-primary', bg: 'bg-primary/5' },
-    { label: 'Pending Reports', value: '12', icon: FileText, color: 'text-secondary', bg: 'bg-secondary/5' },
-    { label: 'Today Appointments', value: '8', icon: Calendar, color: 'text-accent', bg: 'bg-accent/5' },
-    { label: 'Emergency Alerts', value: '3', icon: AlertCircle, color: 'text-error', bg: 'bg-error/5' },
+    { label: 'Total Patients', value: '0', icon: Users, color: 'text-primary', bg: 'bg-primary/5' },
+    { label: 'Pending Reports', value: '0', icon: FileText, color: 'text-secondary', bg: 'bg-secondary/5' },
+    { label: 'Today Appointments', value: '0', icon: Calendar, color: 'text-accent', bg: 'bg-accent/5' },
+    { label: 'Emergency Alerts', value: '0', icon: AlertCircle, color: 'text-error', bg: 'bg-error/5' },
   ];
 
-  const recentPatients = [
-    { id: '1', name: 'John Doe', age: 45, diagnosis: 'Melanoma', date: '2024-03-15', status: 'Emergency' },
-    { id: '2', name: 'Jane Smith', age: 32, diagnosis: 'Psoriasis', date: '2024-03-14', status: 'Consulted' },
-    { id: '3', name: 'Robert Fox', age: 28, diagnosis: 'Dermatitis', date: '2024-03-14', status: 'Pending' },
-    { id: '4', name: 'Esther Howard', age: 52, diagnosis: 'Basal Cell Carcinoma', date: '2024-03-13', status: 'Emergency' },
-  ];
+  const recentPatients: any[] = [];
+
 
   return (
     <div className="animate-fade-in space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold tracking-tight">Doctor Campus</h1>
+          <h1 className="text-4xl font-bold tracking-tight">Doctor Dashboard</h1>
           <p className="text-text-secondary mt-1">Intelligent R&D monitoring for skin conditions</p>
         </div>
         <div className="flex gap-4">
@@ -70,38 +66,47 @@ const DoctorDashboard: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="text-sm">
-                {recentPatients.map((p) => (
-                  <tr key={p.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors group">
-                    <td className="py-5">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center font-bold text-xs text-white shadow-lg">
-                          {p.name.charAt(0)}
+                {recentPatients.length > 0 ? (
+                  recentPatients.map((p) => (
+                    <tr key={p.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors group">
+                      <td className="py-5">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center font-bold text-xs text-white shadow-lg">
+                            {p.name.charAt(0)}
+                          </div>
+                          <div>
+                              <p className="font-bold">{p.name}</p>
+                              <p className="text-[10px] text-text-secondary">Age: {p.age}</p>
+                          </div>
                         </div>
-                        <div>
-                            <p className="font-bold">{p.name}</p>
-                            <p className="text-[10px] text-text-secondary">Age: {p.age}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-5 font-medium">{p.diagnosis}</td>
-                    <td className="py-5 text-text-secondary text-xs">{p.date}</td>
-                    <td className="py-5">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                        p.status === 'Emergency' ? 'bg-red-50 text-error border border-red-100' :
-                        p.status === 'Consulted' ? 'bg-green-50 text-success border border-green-100' :
-                        'bg-amber-50 text-warning border border-amber-100'
-                      }`}>
-                        {p.status}
-                      </span>
-                    </td>
-                    <td className="py-5 text-right pr-4">
-                      <button className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-black hover:text-white transition-all">
-                        <ChevronRight size={16} />
-                      </button>
+                      </td>
+                      <td className="py-5 font-medium">{p.diagnosis}</td>
+                      <td className="py-5 text-text-secondary text-xs">{p.date}</td>
+                      <td className="py-5">
+                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          p.status === 'Emergency' ? 'bg-red-50 text-error border border-red-100' :
+                          p.status === 'Consulted' ? 'bg-green-50 text-success border border-green-100' :
+                          'bg-amber-50 text-warning border border-amber-100'
+                        }`}>
+                          {p.status}
+                        </span>
+                      </td>
+                      <td className="py-5 text-right pr-4">
+                        <button className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-black hover:text-white transition-all">
+                          <ChevronRight size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="py-12 text-center text-gray-400 italic">
+                      No recent diagnostic sequences available.
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
+
             </table>
           </div>
         </div>

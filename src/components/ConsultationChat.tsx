@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import Viewer from 'react-viewer';
+import ViewerModule from 'react-viewer';
 import { Send, Paperclip, FileText, Image as ImageIcon } from 'lucide-react';
+
+const Viewer = (ViewerModule as any).default || ViewerModule;
 
 interface Message {
     content: string;

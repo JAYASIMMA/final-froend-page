@@ -1,86 +1,276 @@
-import React from 'react';
-import { User, Shield, Bell, Key, LogOut, ExternalLink, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { User, Shield, Bell, Key, LogOut, ExternalLink, ChevronRight, Camera, Save, Loader2, Hospital, Briefcase, Image as ImageIcon, Upload } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+interface ProfileData {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  profile_image: string | null;
+  banner_image: string | null;
+  details: any;
+}
 
 const ProfilePage: React.FC = () => {
+  const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState('account');
+  const [editData, setEditData] = useState<any>({ name: '', details: {} });
+  const [isDragging, setIsDragging] = useState<{ type: 'profile' | 'banner' | null }>({ type: null });
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://127.0.0.1:8000/profile/', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setProfile(response.data);
+      setEditData({
+        name: response.data.name,
+        details: response.data.details || {}
+      });
+    } catch (err) {
+      console.error('Error fetching profile:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdate = async () => {
+    setSaving(true);
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put('http://127.0.0.1:8000/profile/', editData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      alert('Security Protocols Updated Successfully');
+      fetchProfile();
+    } catch (err) {
+      console.error('Error updating profile:', err);
+      alert('Failed to update profile.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleFileUpload = async (file: File, type: 'profile' | 'banner') => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('image_type', type);
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.post('http://127.0.0.1:8000/profile/upload-image', formData, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      console.log('Upload response:', response.data);
+      fetchProfile();
+    } catch (err) {
+      console.error('Error uploading image:', err);
+      alert('Upload failed. Check console for details.');
+    }
+  };
+
+  const onDrop = (e: React.DragEvent, type: 'profile' | 'banner') => {
+    e.preventDefault();
+    setIsDragging({ type: null });
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      handleFileUpload(file, type);
+    }
+  };
+
+  const getRoleAccent = () => {
+    switch (profile?.role) {
+      case 'doctor': return 'bg-blue-600';
+      case 'patient': return 'bg-[#DAF185]';
+      case 'admin': return 'bg-brand-black';
+      default: return 'bg-gray-400';
+    }
+  };
+
+  if (loading) return (
+    <div className="flex items-center justify-center h-[60vh]">
+      <Loader2 className="animate-spin text-brand-lime" size={48} />
+    </div>
+  );
+
   return (
-    <div className="animate-fade-in max-w-4xl mx-auto space-y-10">
-      <div className="flex items-center gap-8 mb-12">
-        <div className="relative">
-            <div className="w-24 h-24 rounded-[2rem] bg-brand-black text-white flex items-center justify-center text-4xl font-bold border-4 border-white shadow-xl">
-                JD
-            </div>
-            <div className="absolute -bottom-1 -right-1 bg-brand-lime p-2 rounded-xl border-4 border-white shadow-lg">
-                <Shield size={16} className="text-black" />
-            </div>
+    <div className="animate-fade-in max-w-6xl mx-auto pb-20 px-4">
+      {/* Header Section (Banner + Overlapping Avatar) */}
+      <div className="relative mb-32 group/header">
+        {/* Banner Section */}
+        <div 
+          className={`h-64 rounded-[3rem] overflow-hidden shadow-2xl transition-all duration-500 relative ${getRoleAccent()}`}
+          onDragOver={(e) => { e.preventDefault(); setIsDragging({ type: 'banner' }); }}
+          onDragLeave={() => setIsDragging({ type: null })}
+          onDrop={(e) => onDrop(e, 'banner')}
+        >
+          {profile?.banner_image ? (
+            <img src={`http://127.0.0.1:8000/${profile.banner_image}`} className="w-full h-full object-cover" alt="Banner" />
+          ) : (
+            <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+          )}
+          
+          <div className={`absolute inset-0 bg-black/40 flex items-center justify-center transition-opacity z-10 ${isDragging.type === 'banner' ? 'opacity-100' : 'opacity-0 group-hover/header:opacity-100'}`}>
+            <label className="cursor-pointer flex flex-col items-center gap-2 text-white">
+              <ImageIcon size={32} />
+              <span className="text-xs font-black uppercase tracking-widest">Update Banner Protocol</span>
+              <input type="file" className="hidden" accept="image/*" onChange={(e) => e.target.files && handleFileUpload(e.target.files[0], 'banner')} />
+            </label>
+          </div>
         </div>
-        <div>
-            <h1 className="text-4xl font-bold tracking-tight">Jayasimma D</h1>
-            <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] mt-1">Enterprise Lab Member • ID: #RX-29384</p>
+
+        {/* Floating Identity Section (Overlapping) */}
+        <div className="absolute -bottom-16 left-12 flex items-end gap-10 z-20">
+            <div 
+              className="relative group/avatar"
+              onDragOver={(e) => { e.preventDefault(); setIsDragging({ type: 'profile' }); }}
+              onDragLeave={() => setIsDragging({ type: null })}
+              onDrop={(e) => onDrop(e, 'profile')}
+            >
+                <div className="w-44 h-44 rounded-full bg-white flex items-center justify-center text-7xl font-black border-[10px] border-white shadow-2xl overflow-hidden transition-transform group-hover/avatar:scale-[1.03]">
+                    {profile?.profile_image ? (
+                      <img src={`http://127.0.0.1:8000/${profile.profile_image}`} className="w-full h-full object-cover" alt="Avatar" />
+                    ) : (
+                      <span className="text-brand-black">{profile?.name.charAt(0)}</span>
+                    )}
+                </div>
+                
+                {/* Profile Upload Overlay */}
+                <label className="absolute bottom-3 right-3 bg-brand-black text-white p-3.5 rounded-2xl border-4 border-white shadow-xl cursor-pointer hover:scale-110 transition-transform z-30">
+                    <Camera size={22} />
+                    <input type="file" className="hidden" accept="image/*" onChange={(e) => e.target.files && handleFileUpload(e.target.files[0], 'profile')} />
+                </label>
+
+                {isDragging.type === 'profile' && (
+                  <div className="absolute inset-0 bg-brand-lime/90 rounded-full flex items-center justify-center z-40">
+                    <Upload size={40} className="text-black animate-bounce" />
+                  </div>
+                )}
+            </div>
+
+            <div className="pb-6">
+                <h1 className="text-5xl font-black tracking-tighter text-white drop-shadow-2xl mb-3">
+                  {profile?.name}
+                </h1>
+                <div className="flex items-center gap-4">
+                  <span className={`px-4 py-1.5 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-xl border border-white/30 ${getRoleAccent()}`}>
+                    {profile?.role} AUTHORIZED
+                  </span>
+                  <span className="text-white/90 font-bold text-xs uppercase tracking-widest bg-black/30 px-4 py-1.5 rounded-xl backdrop-blur-sm border border-white/10">
+                    ID: #RX-{profile?.id.toString().padStart(5, '0')}
+                  </span>
+                </div>
+            </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-1 space-y-4">
-            <div className="glass-card p-4 space-y-1">
+
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-10 mt-32">
+        <div className="lg:col-span-1 space-y-4">
+            <div className="glass-card p-5 space-y-2">
                 {[
-                    { icon: User, label: 'Account Details', active: true },
-                    { icon: Shield, label: 'Security & Auth', active: false },
-                    { icon: Bell, label: 'Notifications', active: false },
-                    { icon: Key, label: 'API Keys', active: false },
-                ].map((item, i) => (
+                    { id: 'account', icon: User, label: 'Identity' },
+                    { id: 'details', icon: Shield, label: 'Bio-Protocol' },
+                ].map((item) => (
                     <button 
-                        key={i} 
-                        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all ${item.active ? 'bg-black text-white shadow-lg' : 'text-gray-600 hover:bg-gray-100 hover:text-black'}`}
+                        key={item.id} 
+                        onClick={() => setActiveTab(item.id)}
+                        className={`w-full flex items-center justify-between px-5 py-4 rounded-2xl transition-all ${activeTab === item.id ? 'bg-black text-white' : 'text-gray-500 hover:bg-gray-100'}`}
                     >
-                        <div className="flex items-center gap-3">
-                            <item.icon size={18} />
+                        <div className="flex items-center gap-4">
+                            <item.icon size={20} />
                             <span className="text-sm font-bold">{item.label}</span>
                         </div>
-                        {item.active && <ChevronRight size={14} />}
                     </button>
                 ))}
             </div>
-            
-            <button className="w-full flex items-center gap-3 px-8 py-4 rounded-xl text-status-error font-bold hover:bg-red-50 transition-all">
-                <LogOut size={18} /> Sign Out
-            </button>
         </div>
 
-        <div className="md:col-span-2 space-y-8">
-            <div className="glass-card">
-                <h3 className="text-xl font-bold mb-8 tracking-tighter">Personal Parameters</h3>
-                <div className="grid grid-cols-2 gap-8">
-                    <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
-                        <input type="text" defaultValue="Jayasimma D" className="w-full" disabled />
-                    </div>
-                    <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
-                        <input type="email" defaultValue="javasimma@skintermo.ai" className="w-full" />
-                    </div>
-                    <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Lab Group</label>
-                        <input type="text" defaultValue="Clinical Validation A" className="w-full" disabled />
-                    </div>
-                    <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Security Tier</label>
-                        <div className="px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-sm font-bold text-brand-blue flex items-center gap-2">
-                            <Shield size={14} /> Level 4 Enterprise
+        <div className="lg:col-span-3">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="glass-card p-10 bg-white"
+            >
+              {activeTab === 'account' ? (
+                <div className="space-y-8">
+                  <h3 className="text-2xl font-black">Identity Parameters</h3>
+                  <div className="grid grid-cols-2 gap-8">
+                      <div>
+                          <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Legal Name</label>
+                          <input 
+                            type="text" 
+                            value={editData.name} 
+                            onChange={e => setEditData({...editData, name: e.target.value})}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-6 py-4 text-sm font-bold focus:border-black outline-none transition-all" 
+                          />
+                      </div>
+                      <div>
+                          <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Email</label>
+                          <input type="email" value={profile?.email} className="w-full bg-gray-100 border border-gray-200 rounded-2xl px-6 py-4 text-sm font-bold text-gray-400 opacity-60" disabled />
+                      </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-8">
+                  <h3 className="text-2xl font-black">Bio-Protocol Data</h3>
+                  <div className="grid grid-cols-2 gap-8">
+                    {profile?.role === 'patient' ? (
+                      <>
+                        <div>
+                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Age</label>
+                            <input 
+                              type="number" 
+                              value={editData.details.age || ''} 
+                              onChange={e => setEditData({...editData, details: {...editData.details, age: e.target.value}})}
+                              className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-6 py-4 text-sm font-bold focus:border-black outline-none transition-all" 
+                            />
                         </div>
-                    </div>
+                        <div>
+                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Gender</label>
+                            <select 
+                              value={editData.details.gender || ''} 
+                              onChange={e => setEditData({...editData, details: {...editData.details, gender: e.target.value}})}
+                              className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-6 py-4 text-sm font-bold focus:border-black outline-none transition-all"
+                            >
+                              <option value="">Select</option>
+                              <option value="Male">Male</option>
+                              <option value="Female">Female</option>
+                            </select>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="col-span-2 text-center py-10 text-gray-400">
+                        Professional protocol data managed via admin terminal.
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="mt-10 pt-8 border-t border-gray-100 flex justify-end">
-                    <button className="btn btn-primary px-10">Update Protocol</button>
-                </div>
-            </div>
+              )}
 
-            <div className="glass-card bg-gray-50/50 border-dashed">
-                <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400">Connected Nodes</h3>
-                    <ExternalLink size={14} className="text-gray-300" />
-                </div>
-                <p className="text-xs text-gray-500">Your account is currently linked to 3 laboratory validation nodes. Higher data processing speeds are enabled for your current tier.</p>
-            </div>
+              <div className="mt-12 pt-8 border-t border-gray-100 flex justify-end">
+                <button onClick={handleUpdate} disabled={saving} className="bg-black text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-3 shadow-xl">
+                  {saving ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
+                  Sync Protocols
+                </button>
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
     </div>

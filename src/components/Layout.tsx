@@ -9,17 +9,20 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ role }) => {
+  const [isExpanded, setIsExpanded] = React.useState(true);
+
   return (
-    <div className="app-container">
-      <Sidebar role={role} />
-      <div className="flex-col w-full">
+    <div className="flex h-screen overflow-hidden bg-gray-50">
+      <Sidebar role={role} isExpanded={isExpanded} setIsExpanded={setIsExpanded} />
+      <div className={`flex flex-col flex-1 transition-all duration-300 ${isExpanded ? 'ml-0' : 'ml-0'}`}>
         <Header />
-        <main className="main-content">
+        <main className="flex-1 overflow-y-auto p-8">
           <Outlet />
         </main>
       </div>
     </div>
   );
 };
+
 
 export default Layout;

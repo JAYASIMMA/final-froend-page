@@ -5,10 +5,17 @@ import Login from './pages/Login';
 import DoctorDashboard from './pages/doctor/DoctorDashboard';
 import PatientDashboard from './pages/patient/PatientDashboard';
 import DoctorOnboardingForm from './pages/admin/DoctorOnboardingForm';
+import DoctorManagement from './pages/admin/DoctorManagement';
 import ConsultationChat from './components/ConsultationChat';
+import AIChatBot from './pages/AIChatBot';
 import ScanningPage from './pages/patient/ScanningPage';
-import DoctorMarketplace from './pages/patient/DoctorMarketplace';
+
+import PatientConnectionPage from './pages/doctor/PatientConnectionPage';
+import DoctorConnectionPage from './pages/patient/DoctorConnectionPage';
 import ProfilePage from './pages/ProfilePage';
+
+import DoctorVerificationPage from './pages/doctor/DoctorVerificationPage';
+import LandingPage from './pages/LandingPage';
 
 // Placeholder components for remaining screens
 const Placeholder = ({ title }: { title: string }) => (
@@ -22,23 +29,25 @@ const App: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/doctor/verify" element={<DoctorVerificationPage />} />
         <Route path="/login" element={<Login />} />
         
         {/* Doctor Routes */}
         <Route path="/doctor" element={<Layout role="DOCTOR" />}>
           <Route path="dashboard" element={<DoctorDashboard />} />
           <Route path="reports" element={<Placeholder title="Diagnostic Reports" />} />
-          <Route path="requests" element={<Placeholder title="Access Requests" />} />
-          <Route path="chatbot" element={<ConsultationChat />} />
+          <Route path="requests" element={<PatientConnectionPage />} />
+          <Route path="chatbot" element={<AIChatBot />} />
           <Route path="profile" element={<ProfilePage />} />
         </Route>
 
         {/* Patient Routes */}
         <Route path="/patient" element={<Layout role="PATIENT" />}>
           <Route path="dashboard" element={<PatientDashboard />} />
-          <Route path="chatbot" element={<ConsultationChat />} />
+          <Route path="chatbot" element={<AIChatBot />} />
           <Route path="scanning" element={<ScanningPage />} />
-          <Route path="doctors" element={<DoctorMarketplace />} />
+          <Route path="doctors" element={<DoctorConnectionPage />} />
           <Route path="profile" element={<ProfilePage />} />
         </Route>
 
@@ -46,10 +55,10 @@ const App: React.FC = () => {
         <Route path="/admin" element={<Layout role="ADMIN" />}>
           <Route path="dashboard" element={<Placeholder title="System Analytics" />} />
           <Route path="users" element={<DoctorOnboardingForm />} />
+          <Route path="doctors" element={<DoctorManagement />} />
           <Route path="settings" element={<Placeholder title="Protocol Settings" />} />
         </Route>
 
-        <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
   );
